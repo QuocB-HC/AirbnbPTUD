@@ -458,6 +458,7 @@ export default function AccommodationDetail({ navigation }: any) {
           totalRating={totalRating}
           totalReview={reviews.length}
           totalPrice={accommodation.price_per_night * nightsState}
+          navigation={navigation}
           onCloseModal={(state) => setIsOpenBookingModal(state)}
         />
       </Modal>

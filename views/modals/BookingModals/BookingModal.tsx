@@ -14,6 +14,7 @@ type BookingModalProps = {
   totalRating: number;
   totalReview: number;
   totalPrice: number;
+  navigation: any,
   onCloseModal: (state: boolean) => void;
 };
 
@@ -23,6 +24,7 @@ const BookingModal = ({
   totalRating,
   totalReview,
   totalPrice,
+  navigation,
   onCloseModal,
 }: BookingModalProps) => {
   const [isOpenBookingDetail, setIsOpenBookingDetail] = useState(false);
@@ -45,6 +47,11 @@ const BookingModal = ({
     setIsOpenBookingDetail(false);
     setIsOpenPaymentDetail(false);
     setIsOpenConfirmPayment(true);
+  };
+
+  const confirmPayment = () => {
+    onCloseModal(false);
+    navigation.navigate("Accommodation List");
   };
 
   useEffect(() => {
@@ -77,7 +84,7 @@ const BookingModal = ({
         <ConfirmPayment
           accommodation={accommodation}
           totalPrice={totalPrice}
-          onCloseModal={() => onCloseModal(false)}
+          onCloseModal={() => confirmPayment()}
         />
       ) : null}
     </View>

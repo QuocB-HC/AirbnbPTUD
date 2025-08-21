@@ -23,7 +23,9 @@ export default function BookingMultiCalendar() {
 
   useEffect(() => {
     setRange(dateState);
-  }, []);
+    console.log(dateState);
+    
+  }, [dateState]);
 
   const handleDateChange = (
     newDate: DateRange,
@@ -47,13 +49,6 @@ export default function BookingMultiCalendar() {
     const month = startDateObj.getMonth() + 1; // JS month bắt đầu từ 0
 
     return `${startDay} - ${endDay} thg ${month}`;
-  };
-
-  const nights = () => {
-    if (!range.checkInDate || !range.checkOutDate) return 0;
-    const start = new Date(range.checkInDate);
-    const end = new Date(range.checkOutDate);
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
   };
 
   const calcNights = (start: string | null, end: string | null) => {

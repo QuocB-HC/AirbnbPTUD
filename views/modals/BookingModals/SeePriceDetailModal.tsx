@@ -11,10 +11,6 @@ type Props = {
 export default function SeePriceDetailModal({ price, onCloseModal }: Props) {
   const nightsState = useSelector((state: any) => state.DateReducer.nights);
 
-  useEffect(() => {
-    console.log(nightsState);
-  });
-
   return (
     <TouchableWithoutFeedback onPress={() => onCloseModal(false)}>
       <View style={styles.outsideModal}>

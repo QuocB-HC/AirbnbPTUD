@@ -20,6 +20,7 @@ import { addHistory, getHistoryCitiesByUserId } from "../../../api/history.api";
 import { useDispatch, useSelector } from "react-redux";
 import EditCustomer from "../../../redux/actions/EditCustomer";
 import { getUserId } from "../../../services/authService";
+import { EditDate, EditNights, EditRange } from "../../../redux/actions/EditDate";
 
 type Props = {
   onCloseModal: (state: boolean) => void;
@@ -144,6 +145,9 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
     setCustomer({ adult: 0, child: 0, baby: 0 });
     setSearchQuery("");
     dispatch(EditCustomer({ adult: 0, child: 0, baby: 0 }));
+    dispatch(EditDate({ checkInDate: null, checkOutDate: null }));
+    dispatch(EditNights(0));
+    dispatch(EditRange(null));
   };
 
   const handleConfirmSearch = async () => {
@@ -175,7 +179,6 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
 
   useEffect(() => {
     handleShowPlace();
-    setDate(dateState);
 
     (async () => {
       try {
@@ -225,6 +228,10 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    setDate(dateState);    
+  }, [dateState])
 
   return (
     <View style={styles.outsideModal}>

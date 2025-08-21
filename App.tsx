@@ -1,25 +1,35 @@
 import { StyleSheet, View } from "react-native";
-import NavigationTab from "./navigation/NavigationTab";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import AuthNavigation from "./navigation/AuthNavigation";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider } from "react-redux";
 import store from "./redux/store";
-import { getToken } from "./services/authService";
 import { supabase } from "./lib/supabase";
+import { getUserId } from "./services/authService";
+import { getProfileUserTypeById } from "./api/profile.api";
+import HostCenterScreen from "./views/screens/host/HostCenterScreen";
+import GuestNavigationTab from "./navigation/GuestNavigationTab";
+import AdminNavigationTab from "./navigation/AdminNavigationTab";
+
+const roleScreens: Record<string, JSX.Element> = {
+  Guest: <GuestNavigationTab />,
+  Host: <HostCenterScreen />,
+  Admin: <AdminNavigationTab />,
+};
 
 export default function App() {
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true); // thêm loading để tránh nhấp nháy
+  const [session, setSession] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string>("Guest");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
-        setToken(data.session.access_token);
+        setSession(data.session.access_token);
       } else {
-        setToken(null);
+        setSession(null);
       }
       setLoading(false);
     };
@@ -30,9 +40,9 @@ export default function App() {
     const { data: subscription } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (session) {
-          setToken(session.access_token);
+          setSession(session.access_token);
         } else {
-          setToken(null);
+          setSession(null);
         }
       }
     );
@@ -42,16 +52,33 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const getUserTypeById = async () => {
+      const user_id = await getUserId();
+
+      if (user_id) {
+        const type = await getProfileUserTypeById(user_id);
+        setUserType(type);
+      }
+    };
+
+    getUserTypeById();
+  }, [session]);
+
   if (loading) {
     return null;
   }
 
   return (
     <Provider store={store}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <SafeAreaView style={styles.container}>
         <NavigationContainer>
           <View style={{ flex: 1 }}>
-            {token ? <NavigationTab /> : <AuthNavigation />}
+            {session ? (
+              roleScreens[userType] ?? <AuthNavigation />
+            ) : (
+              <AuthNavigation />
+            )}
           </View>
         </NavigationContainer>
       </SafeAreaView>
@@ -62,5 +89,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
 });

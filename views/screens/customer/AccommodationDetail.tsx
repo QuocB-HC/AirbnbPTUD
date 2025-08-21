@@ -281,7 +281,7 @@ export default function AccommodationDetail({ navigation }: any) {
           <View style={styles.mapContainer}>
             <Text style={styles.mapTitle}>Nơi bạn sẽ đến</Text>
             <Text style={styles.mapSubtitle}>
-              {accommodation.city}, {accommodation.country}
+              {city?.name}, {accommodation.country}
             </Text>
 
             <View style={styles.map}>

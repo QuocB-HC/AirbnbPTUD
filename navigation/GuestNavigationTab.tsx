@@ -8,11 +8,11 @@ import ProfileScreen from "../views/screens/customer/ProfileScreen";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import ListToDetail from "./ListToDetail";
+import ExploreNavigation from "./ExploreNavigation";
 
 const Tab = createBottomTabNavigator();
 
-export default function NavigationTab() {
+export default function GuestNavigationTab() {
   return (
     <Tab.Navigator
       initialRouteName="Explore Screen"
@@ -56,7 +56,7 @@ export default function NavigationTab() {
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen name="Explore Screen" component={ListToDetail} />
+      <Tab.Screen name="Explore Screen" component={ExploreNavigation} />
       <Tab.Screen name="Wishlist Screen" component={WishlistScreen} />
       <Tab.Screen name="Trips Screen" component={TripsScreen} />
       <Tab.Screen name="Inbox Screen" component={InboxScreen} />

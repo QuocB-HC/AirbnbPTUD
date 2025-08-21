@@ -66,6 +66,7 @@ export async function signUpWithEmail(email: string, password: string) {
   if (error) throw error;
 
   await supabase.auth.signOut();
+
   Alert.alert("Đăng ký thành công", "Vui lòng đăng nhập để tiếp tục");
 }
 

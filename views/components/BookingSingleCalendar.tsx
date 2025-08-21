@@ -4,12 +4,14 @@ import { Calendar, LocaleConfig } from "react-native-calendars";
 import { useDispatch, useSelector } from "react-redux";
 import { EditDate, EditNights, EditRange } from "../../redux/actions/EditDate";
 import { DateRange } from "../../models/date.model";
+import { getCityById } from "../../api/city.api";
 
 export default function BookingSingleCalendar({ city }: any) {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const dispatch = useDispatch();
   const dateState = useSelector((state: any) => state.DateReducer.date);
+  const [cityName, setCityName] = useState("");
 
   useEffect(() => {
     if (dateState) {
@@ -180,6 +182,15 @@ export default function BookingSingleCalendar({ city }: any) {
     dispatch(EditNights(0));
   };
 
+  useEffect(() => {
+    const getCityName = async () => {
+      const result = await getCityById(city);
+      setCityName(result.name)
+    };
+
+    getCityName();
+  })
+  
   return (
     <View style={styles.container}>
       {city != "" ? (
@@ -187,7 +198,7 @@ export default function BookingSingleCalendar({ city }: any) {
           {startDate && endDate ? (
             <>
               <Text style={styles.title}>
-                {nights()} đêm tại Thành phố {city}
+                {nights()} đêm tại {cityName}
               </Text>
               <Text style={styles.subtitle}>
                 {formatDate(startDate)} - {formatDate(endDate)}

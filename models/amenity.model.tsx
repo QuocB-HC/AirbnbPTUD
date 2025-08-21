@@ -5,3 +5,10 @@ export interface Amenity {
   description: string,
   category: string,
 };
+
+export interface NewAmenity {
+  name: string;
+  icon_path: string;
+  description: string;
+  category: string;
+};

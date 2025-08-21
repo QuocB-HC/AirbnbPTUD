@@ -6,7 +6,7 @@ import SearchResultScreen from "../views/screens/customer/SearchResultScreen";
 
 const Stack = createNativeStackNavigator();
 
-export default function ListToDetail() {
+export default function ExploreNavigation() {
   return (
     <Stack.Navigator initialRouteName="Accommodation List">
       <Stack.Screen

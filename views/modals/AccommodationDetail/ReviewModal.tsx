@@ -98,7 +98,7 @@ export default function ReviewModal({
                       Tìm hiểu quy trình đánh giá
                     </Text>
                   </View>
-
+{/* 
                   <View style={styles.sortTypePickerWrapper}>
                     <Picker
                       style={styles.sortTypePicker}
@@ -114,7 +114,7 @@ export default function ReviewModal({
                         />
                       ))}
                     </Picker>
-                  </View>
+                  </View> */}
                 </View>
 
                 <View style={styles.reviewList}>

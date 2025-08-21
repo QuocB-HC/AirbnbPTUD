@@ -18,8 +18,8 @@ import { Accommodation } from "../../../models/accommodation.model";
 import { getAccommodationByCityId } from "../../../api/accommodation.api";
 import AccommodationCard from "../../components/AccommodationCard";
 import { useDispatch } from "react-redux";
-import EditDate from "../../../redux/actions/EditDate";
 import EditCustomer from "../../../redux/actions/EditCustomer";
+import { EditDate, EditNights, EditRange } from "../../../redux/actions/EditDate";
 
 export default function SearchResultScreen({ navigation }: any) {
   const route = useRoute();
@@ -59,6 +59,8 @@ export default function SearchResultScreen({ navigation }: any) {
   const goBack = () => {
     navigation.goBack();
     dispatch(EditDate({ checkInDate: null, checkOutDate: null }));
+    dispatch(EditRange(null));
+    dispatch(EditNights(0));
     dispatch(EditCustomer({ adult: 0, child: 0, baby: 0 }));
   };
 

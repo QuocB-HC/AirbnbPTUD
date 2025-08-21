@@ -1,8 +1,31 @@
 // src/services/authService.ts
+import { Alert } from "react-native";
 import { supabase } from "../lib/supabase";
+import * as SecureStore from "expo-secure-store";
 
 let currentUser: any = null;
 let currentToken: string | null = null;
+
+export async function saveAuth(token: string, user_id: any) {
+  await SecureStore.setItemAsync("userToken", token);
+  await SecureStore.setItemAsync("userId", user_id);
+}
+
+export async function getToken() {
+  return await SecureStore.getItemAsync("userToken");
+}
+
+export async function getUserId() {
+  return await SecureStore.getItemAsync("userId");
+}
+
+export async function removeAuth() {
+  await SecureStore.deleteItemAsync("userToken");
+}
+
+export async function removeUserId() {
+  await SecureStore.deleteItemAsync("userId");
+}
 
 // Khi app start, cố gắng load session có sẵn
 export async function initAuth() {
@@ -29,6 +52,8 @@ export async function signInWithEmail(email: string, password: string) {
   currentUser = data.user;
   currentToken = data.session?.access_token ?? null;
 
+  await saveAuth(currentToken, currentUser.id);
+
   return { user: currentUser, token: currentToken };
 }
 
@@ -40,10 +65,8 @@ export async function signUpWithEmail(email: string, password: string) {
 
   if (error) throw error;
 
-  currentUser = data.user;
-  currentToken = data.session?.access_token ?? null;
-
-  return { user: currentUser, token: currentToken };
+  await supabase.auth.signOut();
+  Alert.alert("Đăng ký thành công", "Vui lòng đăng nhập để tiếp tục");
 }
 
 // Hàm đăng xuất
@@ -54,16 +77,9 @@ export async function signOut() {
   } else {
     console.log("Signed out successfully!");
   }
-  
+
+  removeAuth();
+  removeUserId();
   currentUser = null;
   currentToken = null;
-}
-
-// Getter
-export function getCurrentUser() {
-  return currentUser;
-}
-
-export function getCurrentToken() {
-  return currentToken;
 }

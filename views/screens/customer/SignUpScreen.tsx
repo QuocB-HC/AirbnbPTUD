@@ -2,23 +2,26 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { TextInput, Button, Title } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import { signInWithEmail } from "../../services/authService";
+import { signUpWithEmail } from "../../../services/authService";
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSignIn() {
+  async function handleSignUp() {
+    if (password !== confirmPassword) {
+      Alert.alert("Lỗi", "Password và Confirm Password không khớp!");
+      return;
+    }
+
     try {
       setLoading(true);
-      const { user } = await signInWithEmail(email, password);
-      if (user) {
-        Alert.alert("Đăng nhập thành công", `Xin chào ${user.email}`);
-      }
+      await signUpWithEmail(email, password);
     } catch (error: any) {
-      Alert.alert("Lỗi đăng nhập", error.message);
+      Alert.alert("Lỗi đăng ký", error.message);
     } finally {
       setLoading(false);
     }
@@ -26,7 +29,7 @@ export default function SignInScreen() {
 
   return (
     <View style={styles.container}>
-      <Title style={styles.title}>Sign In</Title>
+      <Title style={styles.title}>Sign Up</Title>
 
       <TextInput
         label="Email"
@@ -48,23 +51,33 @@ export default function SignInScreen() {
         style={styles.input}
       />
 
+      <TextInput
+        label="Confirm Password"
+        mode="outlined"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        secureTextEntry
+        autoCapitalize="none"
+        style={styles.input}
+      />
+
       <Button
         mode="contained"
-        onPress={handleSignIn}
+        onPress={handleSignUp}
         loading={loading}
         disabled={loading}
         style={{ marginTop: 8, backgroundColor: "#DA1249" }}
       >
-        Sign in
+        Sign up
       </Button>
 
       <Button
         mode="text"
-        onPress={() => navigation.navigate("SignUp")}
+        onPress={() => navigation.navigate("SignIn")}
         style={{ marginTop: 8 }}
         textColor="#DA1249"
       >
-        Don't have an account? Sign up
+        Already have an account? Sign in
       </Button>
     </View>
   );

@@ -7,9 +7,11 @@ export async function getHistoryCitiesByUserId(userId: string) {
       .from("history")
       .select("id")
       .eq("user_id", userId)
-      .single(); // lấy luôn 1 record duy nhất
+      .maybeSingle(); // lấy luôn 1 record duy nhất
 
-    if (historyError) throw historyError;
+    if (historyError) throw historyError;    
+
+    if (!history) return null;
 
     const historyId = history.id;
 

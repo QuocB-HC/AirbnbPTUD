@@ -1,7 +1,7 @@
 import { Button, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { signOut } from "../../services/authService";
+import { signOut } from "../../../services/authService";
 
 export default function ProfileScreen() {
   return (

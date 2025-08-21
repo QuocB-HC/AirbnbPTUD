@@ -5,12 +5,14 @@ export async function getProfileById(userId: string) {
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .single(); // chỉ lấy 1 user
+    .maybeSingle(); // chỉ lấy 1 user
 
   if (error) {
     console.error('Lỗi lấy user:', error.message);
     return null;
   }
+
+  if (!data) return null;
 
   return data;
 }

@@ -7,16 +7,19 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { CityWithProvinceName } from "../../models/city.model";
+import { CityWithProvinceName } from "../../../models/city.model";
 import { useRoute } from "@react-navigation/native";
-import { DateRange } from "../../models/date.model";
-import { Customer } from "../../models/customer.model";
+import { DateRange } from "../../../models/date.model";
+import { Customer } from "../../../models/customer.model";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import SearchModal from "../modals/SearchModals/SearchModal";
-import { Accommodation } from "../../models/accommodation.model";
-import { getAccommodationByCityId } from "../../api/accommodation.api";
-import AccommodationCard from "../components/AccommodationCard";
+import SearchModal from "../../modals/SearchModals/SearchModal";
+import { Accommodation } from "../../../models/accommodation.model";
+import { getAccommodationByCityId } from "../../../api/accommodation.api";
+import AccommodationCard from "../../components/AccommodationCard";
+import { useDispatch } from "react-redux";
+import EditDate from "../../../redux/actions/EditDate";
+import EditCustomer from "../../../redux/actions/EditCustomer";
 
 export default function SearchResultScreen({ navigation }: any) {
   const route = useRoute();
@@ -27,6 +30,7 @@ export default function SearchResultScreen({ navigation }: any) {
     customer: Customer;
   };
   const [isOpenSearchModal, setIsOpenSearchModal] = useState<boolean>(false);
+  const dispatch = useDispatch();
 
   const formatDateRange = (rangeDate: DateRange) => {
     if (!rangeDate || !rangeDate.checkInDate || !rangeDate.checkOutDate) {
@@ -52,6 +56,12 @@ export default function SearchResultScreen({ navigation }: any) {
     }
   };
 
+  const goBack = () => {
+    navigation.goBack();
+    dispatch(EditDate({ checkInDate: null, checkOutDate: null }));
+    dispatch(EditCustomer({ adult: 0, child: 0, baby: 0 }));
+  };
+
   useEffect(() => {
     const load = async () => {
       const result = await getAccommodationByCityId(place.id);
@@ -72,7 +82,7 @@ export default function SearchResultScreen({ navigation }: any) {
               size={30}
               color="#000"
               style={styles.searchIcon}
-              onPress={() => navigation.goBack()}
+              onPress={() => goBack()}
             />
 
             <TouchableOpacity

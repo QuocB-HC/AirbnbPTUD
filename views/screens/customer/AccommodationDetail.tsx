@@ -7,37 +7,41 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import {
   Accommodation,
+  AccommodationImage,
   AccommodationRoom,
-} from "../../models/accommodation.model";
+} from "../../../models/accommodation.model";
 import { Ionicons } from "@expo/vector-icons";
-import { Profile } from "../../models/profile.model";
-import { getProfileById } from "../../api/profile.api";
+import { Profile } from "../../../models/profile.model";
+import { getProfileById } from "../../../api/profile.api";
 import moment from "moment";
 import "moment/locale/vi";
-import { Feature } from "../../models/feature.model";
-import { getFeaturesByAccommodationId } from "../../api/feature.api";
-import FeatureCard from "../components/FeatureCard";
-import { getRoomByAccommodationId } from "../../api/accommodation.api";
-import RoomCard from "../components/RoomCard";
-import { Amenity } from "../../models/amenity.model";
-import { getAmenitiesByAccommodationId } from "../../api/amenity.api";
-import AmenityCard from "../components/AmenityCard";
+import { Feature } from "../../../models/feature.model";
+import { getFeaturesByAccommodationId } from "../../../api/feature.api";
+import FeatureCard from "../../components/FeatureCard";
+import { getRoomByAccommodationId } from "../../../api/accommodation.api";
+import RoomCard from "../../components/RoomCard";
+import { Amenity } from "../../../models/amenity.model";
+import { getAmenitiesByAccommodationId } from "../../../api/amenity.api";
+import AmenityCard from "../../components/AmenityCard";
 import MapView, { Marker } from "react-native-maps";
-import { Review } from "../../models/review.model";
-import ReviewCard from "../components/ReviewCard";
-import DescripionModal from "../modals/AccommodationDetail/DescripionModal";
-import AmenitiesModal from "../modals/AccommodationDetail/AmenitiesModal";
-import ReviewModal from "../modals/AccommodationDetail/ReviewModal";
-import SeeHowToReviewModal from "../modals/AccommodationDetail/SeeHowToReviewModal";
-import { City } from "../../models/city.model";
-import { getCityById } from "../../api/city.api";
-import BookingSingleCalendar from "../components/BookingSingleCalendar";
-import { DateRange } from "../../models/date.model";
-import { Customer } from "../../models/customer.model";
+import { Review } from "../../../models/review.model";
+import ReviewCard from "../../components/ReviewCard";
+import DescripionModal from "../../modals/AccommodationDetail/DescripionModal";
+import AmenitiesModal from "../../modals/AccommodationDetail/AmenitiesModal";
+import ReviewModal from "../../modals/AccommodationDetail/ReviewModal";
+import SeeHowToReviewModal from "../../modals/AccommodationDetail/SeeHowToReviewModal";
+import { City } from "../../../models/city.model";
+import { getCityById } from "../../../api/city.api";
+import BookingSingleCalendar from "../../components/BookingSingleCalendar";
+import { Customer } from "../../../models/customer.model";
+import { getImageByAccommodationId } from "../../../api/images.api";
+import { useDispatch, useSelector } from "react-redux";
+import EditCustomer from "../../../redux/actions/EditCustomer";
+import BookingModal from "../../modals/BookingModals/BookingModal";
 
 moment.locale("vi");
 
@@ -48,13 +52,12 @@ export default function AccommodationDetail({ navigation }: any) {
     reviews: Review[];
     totalRating: number;
   };
+  const [images, setImages] = useState<AccommodationImage[]>([]);
   const [user, setUser] = useState<Profile>();
   const [city, setCity] = useState<City>();
   const [features, setFeatures] = useState<Feature[]>([]);
   const [rooms, setRooms] = useState<AccommodationRoom[]>([]);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
-  const [selectedRange, setSelectedRange] = useState(null);
-  const [nights, setNights] = useState<number>(0);
   const [isOpenDescriptionModal, setIsOpenDescriptionModal] =
     useState<boolean>(false);
   const [isOpenAmenitiesModal, setIsOpenAmenitiesModal] =
@@ -62,6 +65,33 @@ export default function AccommodationDetail({ navigation }: any) {
   const [isOpenReviewsModal, setIsOpenReviewsModal] = useState<boolean>(false);
   const [isOpenSeeHowToReviewModal, setIsOpenSeeHowToReviewModal] =
     useState<boolean>(false);
+  const [isOpenBookingModal, setIsOpenBookingModal] = useState<boolean>(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const dispatch = useDispatch();
+  const rangeState = useSelector((state: any) => state.DateReducer.range);
+  const nightsState = useSelector((state: any) => state.DateReducer.nights);
+
+  const handleScrollToCalendar = () => {
+    scrollViewRef.current?.scrollTo({
+      y: 2500,
+      animated: true,
+    });
+  };
+
+  const handleChangeCustomer = (customer: Customer) => {
+    dispatch(EditCustomer(customer));  
+  };
+
+  const openBookingModal = () => {
+    const customer: Customer = {
+      adult: 1,
+      child: 0,
+      baby: 0,
+    }
+
+    handleChangeCustomer(customer);
+    setIsOpenBookingModal(true);
+  };
 
   // Lấy thông tin host theo accommodation id
   useEffect(() => {
@@ -118,6 +148,11 @@ export default function AccommodationDetail({ navigation }: any) {
     getCityById(accommodation.city).then(setCity);
   }, [accommodation.city]);
 
+  // Lấy city image theo id
+  useEffect(() => {
+    getImageByAccommodationId(accommodation.id).then(setImages);
+  }, [accommodation.id]);
+
   if (!accommodation) {
     return (
       <View style={styles.noAccommodationContainer}>
@@ -128,12 +163,15 @@ export default function AccommodationDetail({ navigation }: any) {
 
   return (
     <>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} ref={scrollViewRef}>
         <View style={styles.imageContainer}>
-          <Image
-            style={styles.accommodationImage}
-            source={require("../../assets/images/accommodation1.png")}
-          />
+          {images.slice(0, 1).map((image) => (
+            <Image
+              key={image.id}
+              style={styles.accommodationImage}
+              source={{ uri: image.image_url }}
+            />
+          ))}
 
           <Ionicons
             style={styles.backIcon}
@@ -269,16 +307,7 @@ export default function AccommodationDetail({ navigation }: any) {
           </View>
 
           <View style={styles.calenderContainer}>
-            <BookingSingleCalendar
-              city={accommodation.city}
-              onDatesChange={(
-                rangeText: any,
-                totalNights: any,
-              ) => {
-                setSelectedRange(rangeText);
-                setNights(totalNights);
-              }}
-            />
+            <BookingSingleCalendar city={accommodation.city} />
           </View>
 
           <View style={styles.reviewContainer}>
@@ -338,13 +367,16 @@ export default function AccommodationDetail({ navigation }: any) {
       <View style={styles.bottomBar}>
         <View style={styles.priceSection}>
           <Text>
-            {selectedRange ? (
+            {rangeState ? (
               <View style={{ gap: 10 }}>
                 <Text style={styles.price}>
-                  {(accommodation.price_per_night * nights).toLocaleString()}₫
+                  {(
+                    accommodation.price_per_night * nightsState
+                  ).toLocaleString()}
+                  ₫
                 </Text>
                 <Text style={styles.date}>
-                  Cho {nights} đêm {selectedRange}
+                  Cho {nightsState} đêm {rangeState}
                 </Text>
               </View>
             ) : (
@@ -353,9 +385,21 @@ export default function AccommodationDetail({ navigation }: any) {
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.bookBtn}>
-          <Text style={styles.bookText}>Đặt phòng</Text>
-        </TouchableOpacity>
+        {rangeState ? (
+          <TouchableOpacity
+            style={styles.bookBtn}
+            onPress={() => openBookingModal()}
+          >
+            <Text style={styles.bookText}>Đặt phòng</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.bookBtn}
+            onPress={() => handleScrollToCalendar()}
+          >
+            <Text style={styles.bookText}>Chọn ngày</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Description Modal */}
@@ -403,6 +447,18 @@ export default function AccommodationDetail({ navigation }: any) {
       >
         <SeeHowToReviewModal
           onCloseModal={() => setIsOpenSeeHowToReviewModal(false)}
+        />
+      </Modal>
+
+      {/* Booking Modal */}
+      <Modal animationType="slide" visible={isOpenBookingModal}>
+        <BookingModal
+          accommodation={accommodation}
+          image={images[0]}
+          totalRating={totalRating}
+          totalReview={reviews.length}
+          totalPrice={accommodation.price_per_night * nightsState}
+          onCloseModal={(state) => setIsOpenBookingModal(state)}
         />
       </Modal>
     </>

@@ -1,11 +1,11 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import SearchComponent from "../components/SearchComponent";
-import AccommodationCard from "../components/AccommodationCard";
+import SearchComponent from "../../components/SearchComponent";
+import AccommodationCard from "../../components/AccommodationCard";
 import { useNavigation } from "@react-navigation/native";
-import { fetchAccommodations } from "../../api/accommodation.api";
-import { Accommodation } from "../../models/accommodation.model";
+import { fetchAccommodations } from "../../../api/accommodation.api";
+import { Accommodation } from "../../../models/accommodation.model";
 
 export default function ExploreScreen() {
   const [accommodations, setAccommodations] = useState<Accommodation[]>([]);

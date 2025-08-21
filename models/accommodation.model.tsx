@@ -10,6 +10,7 @@ export interface Accommodation {
   price_per_night: number;
   property_type?: 'Căn hộ' | 'Nhà' | 'Biệt thự' | 'Khách sạn' | 'Nhà nghỉ' | 'Homestay' | 'Cắm trại' | 'Khác';
   status: 'active' | 'inactive';
+  max_guest: number;
   created_at: string;
   updated_at: string;
 };

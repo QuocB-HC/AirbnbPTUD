@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import WishlistScreen from "../views/screens/WishlistScreen";
-import TripsScreen from "../views/screens/TripsScreen";
-import InboxScreen from "../views/screens/InboxScreen";
-import ProfileScreen from "../views/screens/ProfileScreen";
+import WishlistScreen from "../views/screens/customer/WishlistScreen";
+import TripsScreen from "../views/screens/customer/TripsScreen";
+import InboxScreen from "../views/screens/customer/InboxScreen";
+import ProfileScreen from "../views/screens/customer/ProfileScreen";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";

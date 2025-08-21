@@ -17,7 +17,9 @@ import BookingMultiCalendar from "../../components/BookingMultiCalendar";
 import { DateRange } from "../../../models/date.model";
 import { Customer } from "../../../models/customer.model";
 import { addHistory, getHistoryCitiesByUserId } from "../../../api/history.api";
-import { getCurrentUser } from "../../../services/authService";
+import { useDispatch, useSelector } from "react-redux";
+import EditCustomer from "../../../redux/actions/EditCustomer";
+import { getUserId } from "../../../services/authService";
 
 type Props = {
   onCloseModal: (state: boolean) => void;
@@ -33,6 +35,8 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
   const [showPlace, setShowPlace] = useState<boolean>(false);
   const [showDate, setShowDate] = useState<boolean>(false);
   const [showCustomer, setShowCustomer] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const dateState = useSelector((state: any) => state.DateReducer.date);
 
   const [place, setPlace] = useState<CityWithProvinceName>({
     id: 0,
@@ -41,10 +45,7 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
     popularity: 0,
     provinceName: "",
   });
-  const [date, setDate] = useState<{
-    checkInDate: string | null;
-    checkOutDate: string | null;
-  }>({
+  const [date, setDate] = useState<DateRange>({
     checkInDate: null,
     checkOutDate: null,
   });
@@ -117,13 +118,6 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
     setFilteredCity([]);
   };
 
-  const handleSelectDate = (dateRange: DateRange) => {
-    setDate(dateRange);
-    setShowPlace(false);
-    setShowDate(false);
-    setShowCustomer(true);
-  };
-
   const handleDecrease = (key: keyof Customer) => {
     setCustomer((prev) => ({
       ...prev,
@@ -149,12 +143,24 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
     setDate({ checkInDate: null, checkOutDate: null });
     setCustomer({ adult: 0, child: 0, baby: 0 });
     setSearchQuery("");
+    dispatch(EditCustomer({ adult: 0, child: 0, baby: 0 }));
   };
 
   const handleConfirmSearch = async () => {
     if (place.id > 0 && date.checkInDate && date.checkOutDate) {
-      const userId = getCurrentUser().id;
-      await addHistory(userId, place.id);
+      const userId = await getUserId();
+
+      // kiểm tra place.id có tồn tại trong historyCity không
+      const isExist = historyCity.some((city) => city.id === place.id);
+
+      if (!isExist) {
+        if (userId) {
+          await addHistory(userId, place.id);
+        }
+
+        setHistoryCity((prev) => [...prev, place]); // cập nhật state local luôn
+      }
+
       navigation.push("Search Result", {
         place: place,
         date: date,
@@ -169,6 +175,7 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
 
   useEffect(() => {
     handleShowPlace();
+    setDate(dateState);
 
     (async () => {
       try {
@@ -193,26 +200,26 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
         );
         setTop20Cities(top20Cities);
 
-        const currentUser = getCurrentUser();
+        const userId = await getUserId();
 
-        if (!currentUser) {
-          console.error("Người dùng chưa đăng nhập");
-          return;
+        if (userId) {
+          const historyCities = await getHistoryCitiesByUserId(userId);
+
+          if (historyCities) {
+            const citiesHistory: CityWithProvinceName[] = await Promise.all(
+              historyCities.map(async (city) => {
+                const province = await getProvinceById(city.province_id);
+                return {
+                  ...city,
+                  provinceName: province ? province.name : "Unknown Province",
+                };
+              })
+            );
+            setHistoryCity(citiesHistory);
+          } else {
+            setHistoryCity([]);
+          }
         }
-
-        const userId = currentUser.id;
-        const citiesHistory: CityWithProvinceName[] = await Promise.all(
-          (
-            await getHistoryCitiesByUserId(userId)
-          ).map(async (city) => {
-            const province = await getProvinceById(city.province_id);
-            return {
-              ...city,
-              provinceName: province ? province.name : "Unknown Province",
-            };
-          })
-        );
-        setHistoryCity(citiesHistory);
       } catch (error) {
         console.error("Error fetching cities with province name:", error);
       }
@@ -291,9 +298,9 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
               </View>
             ) : (
               <View style={{ gap: 20 }}>
-                <Text style={styles.rightText}>Những tìm kiếm gần đây</Text>
                 {historyCity.length == 0 ? null : (
                   <View>
+                    <Text style={styles.rightText}>Những tìm kiếm gần đây</Text>
                     {historyCity.map((city) => (
                       <TouchableOpacity
                         key={city.id}
@@ -359,9 +366,7 @@ export default function SearchModal({ onCloseModal, navigation }: Props) {
         <View style={styles.dateModal}>
           <Text style={styles.modalTitle}>Thời gian</Text>
           <View style={{ height: "90%" }}>
-            <BookingMultiCalendar
-              onChangDate={(range) => handleSelectDate(range)}
-            />
+            <BookingMultiCalendar />
           </View>
         </View>
       )}

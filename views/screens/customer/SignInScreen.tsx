@@ -2,30 +2,23 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { TextInput, Button, Title } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import { signUpWithEmail } from "../../services/authService";
+import { signInWithEmail } from "../../../services/authService";
 
-export default function SignUpScreen() {
+export default function SignInScreen() {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSignUp() {
-    if (password !== confirmPassword) {
-      Alert.alert("Lỗi", "Password và Confirm Password không khớp!");
-      return;
-    }
-
+  async function handleSignIn() {
     try {
       setLoading(true);
-      await signUpWithEmail(email, password);
-      // Sau khi sign up, session chưa có
-      // Alert.alert("Đăng ký thành công", "Vui lòng đăng nhập để tiếp tục", [
-      //   { text: "OK", onPress: () => navigation.navigate("SignIn") },
-      // ]);
+      const { user } = await signInWithEmail(email, password);
+      if (user) {
+        Alert.alert("Đăng nhập thành công", `Xin chào ${user.email}`);
+      }
     } catch (error: any) {
-      Alert.alert("Lỗi đăng ký", error.message);
+      Alert.alert("Lỗi đăng nhập", error.message);
     } finally {
       setLoading(false);
     }
@@ -33,7 +26,7 @@ export default function SignUpScreen() {
 
   return (
     <View style={styles.container}>
-      <Title style={styles.title}>Sign Up</Title>
+      <Title style={styles.title}>Sign In</Title>
 
       <TextInput
         label="Email"
@@ -55,33 +48,23 @@ export default function SignUpScreen() {
         style={styles.input}
       />
 
-      <TextInput
-        label="Confirm Password"
-        mode="outlined"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-        autoCapitalize="none"
-        style={styles.input}
-      />
-
       <Button
         mode="contained"
-        onPress={handleSignUp}
+        onPress={handleSignIn}
         loading={loading}
         disabled={loading}
         style={{ marginTop: 8, backgroundColor: "#DA1249" }}
       >
-        Sign up
+        Sign in
       </Button>
 
       <Button
         mode="text"
-        onPress={() => navigation.navigate("SignIn")}
+        onPress={() => navigation.navigate("SignUp")}
         style={{ marginTop: 8 }}
         textColor="#DA1249"
       >
-        Already have an account? Sign in
+        Don't have an account? Sign up
       </Button>
     </View>
   );

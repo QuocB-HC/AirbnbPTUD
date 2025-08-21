@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { useDispatch, useSelector } from "react-redux";
-import EditDate from "../../redux/actions/EditDate";
+import { EditDate, EditNights, EditRange } from "../../redux/actions/EditDate";
+import { DateRange } from "../../models/date.model";
 
-export default function BookingSingleCalendar({ city, onDatesChange }: any) {
+export default function BookingSingleCalendar({ city }: any) {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const dispatch = useDispatch();
@@ -14,6 +15,9 @@ export default function BookingSingleCalendar({ city, onDatesChange }: any) {
     if (dateState) {
       setStartDate(dateState.checkInDate);
       setEndDate(dateState.checkOutDate);
+    } else {
+      setStartDate(null);
+      setEndDate(null);
     }
   }, [dateState]);
 
@@ -60,11 +64,20 @@ export default function BookingSingleCalendar({ city, onDatesChange }: any) {
   };
   LocaleConfig.defaultLocale = "vi";
 
+  const handleDateChange = (newDate: DateRange, rangeText: string | null, totalNights: number) => {
+    console.log("Dispatching EditDate with:", newDate);
+    console.log("Dispatching EditRange with:", rangeText);
+    console.log("Dispatching EditNights with:", totalNights);
+
+    dispatch(EditDate(newDate));
+    dispatch(EditRange(rangeText));
+    dispatch(EditNights(totalNights));
+  };
+
   const onDayPress = (day: any) => {
     if (!startDate || (startDate && endDate)) {
       setStartDate(day.dateString);
       setEndDate(null);
-      onDatesChange(null, 0); // chưa chọn đủ 2 ngày
     } else {
       if (new Date(day.dateString) > new Date(startDate)) {
         const newEnd = day.dateString;
@@ -73,19 +86,16 @@ export default function BookingSingleCalendar({ city, onDatesChange }: any) {
         const rangeText = formatRange(startDate, newEnd);
         const totalNights = calcNights(startDate, newEnd);
         const newDate = { checkInDate: startDate, checkOutDate: newEnd };
-        dispatch(EditDate(newDate));
-
-        // gửi cả chuỗi range và số nights
-        onDatesChange(rangeText, totalNights);
+        
+        handleDateChange(newDate, rangeText, totalNights);
       } else {
         setStartDate(day.dateString);
         setEndDate(null);
-        onDatesChange(null, 0);
       }
     }
   };
 
-  const calcNights = (start: string, end: string) => {
+  const calcNights = (start: string | null, end: string | null) => {
     if (!start || !end) return 0;
     const startD = new Date(start);
     const endD = new Date(end);
@@ -126,7 +136,7 @@ export default function BookingSingleCalendar({ city, onDatesChange }: any) {
     return marked;
   };
 
-  const formatRange = (start: any, end: any) => {
+  const formatRange = (start: string | null, end: string | null) => {
     if (!start || !end) return null;
 
     const startDateObj = new Date(start);
@@ -160,13 +170,14 @@ export default function BookingSingleCalendar({ city, onDatesChange }: any) {
   const resetDates = () => {
     setStartDate(null);
     setEndDate(null);
-    onDatesChange(null, null);
     dispatch(
       EditDate({
         checkInDate: null,
         checkOutDate: null,
       })
     );
+    dispatch(EditRange(null));
+    dispatch(EditNights(0));
   };
 
   return (

@@ -17,8 +17,6 @@ import { getReviewsByAccommodationId } from "../../api/review.api";
 import { City } from "../../models/city.model";
 import { getCityById } from "../../api/city.api";
 import { getImageByAccommodationId } from "../../api/images.api";
-import { DateRange } from "../../models/date.model";
-import { Customer } from "../../models/customer.model";
 
 type Props = {
   accommodation: Accommodation;

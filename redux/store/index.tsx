@@ -5,7 +5,7 @@ import CustomerReducer from "../reducers/CustomerReducer";
 const store = configureStore({
     reducer: {
         DateReducer: DateReducer,
-        CustomerReducer: CustomerReducer,
+        customer: CustomerReducer,
     }
 });
 

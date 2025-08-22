@@ -9,7 +9,7 @@ export async function fetchAccommodations() {
   }
 
   return data;
-};
+}
 
 export async function getRoomByAccommodationId(accommodationId: string) {
   const { data, error } = await supabase
@@ -23,8 +23,7 @@ export async function getRoomByAccommodationId(accommodationId: string) {
   }
 
   return data;
-};
-
+}
 
 export async function getAccommodationByCityId(cityId: number) {
   const { data, error } = await supabase
@@ -38,4 +37,18 @@ export async function getAccommodationByCityId(cityId: number) {
   }
 
   return data;
-};
+}
+
+export async function getAccommodationByHostId(hostId: string) {
+  const { data, error } = await supabase
+    .from("accommodation")
+    .select("*")
+    .eq("host_id", hostId);
+
+  if (error) {
+    console.error("Lỗi lấy accommodation với host id: ", error.message);
+    return [];
+  }
+
+  return data;
+}

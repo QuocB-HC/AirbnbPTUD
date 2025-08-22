@@ -21,6 +21,11 @@ export interface AccommodationImage {
   image_url: string;
 };
 
+export interface NewAccommodationImage {
+  accommodation_id: string;
+  image_url: string;
+};
+
 export interface AccommodationAmenity {
   accommodation_id: string;
   amenity_id: number;

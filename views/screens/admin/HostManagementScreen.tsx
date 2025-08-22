@@ -1,8 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Profile } from "../../../models/profile.model";
 import { getProfileOfHost } from "../../../api/profile.api";
-import { signOut } from "../../../services/authService";
 
 export default function HostManagementScreen() {
   const [hosts, setHosts] = useState<Profile[]>([]);
@@ -34,10 +33,6 @@ export default function HostManagementScreen() {
           <Text style={styles.cell}>{item.phone_number}</Text>
         </View>
       ))}
-
-      <Pressable onPress={() => signOut()}>
-        <Text>Đăng xuất</Text>
-      </Pressable>
     </View>
   );
 }

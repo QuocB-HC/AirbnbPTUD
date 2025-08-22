@@ -8,13 +8,13 @@ import store from "./redux/store";
 import { supabase } from "./lib/supabase";
 import { getUserId } from "./services/authService";
 import { getProfileUserTypeById } from "./api/profile.api";
-import HostCenterScreen from "./views/screens/host/HostCenterScreen";
 import GuestNavigationTab from "./navigation/GuestNavigationTab";
 import AdminNavigationTab from "./navigation/AdminNavigationTab";
+import HostNavigationTab from "./navigation/HostNavigationTab";
 
 const roleScreens: Record<string, JSX.Element> = {
   Guest: <GuestNavigationTab />,
-  Host: <HostCenterScreen />,
+  Host: <HostNavigationTab />,
   Admin: <AdminNavigationTab />,
 };
 
